@@ -4,44 +4,70 @@
 
 CollisionSide GetCollisionSide(const Circle& circle, const Rect& rect)
 {
-    // First check if there's an intersection
     float nearestX = std::max(rect.x, std::min(circle.x, rect.x + rect.w));
     float nearestY = std::max(rect.y, std::min(circle.y, rect.y + rect.h));
 
     float deltaX = circle.x - nearestX;
     float deltaY = circle.y - nearestY;
+    float distanceSquared = deltaX * deltaX + deltaY * deltaY;
 
-    if ((deltaX * deltaX + deltaY * deltaY) >= (circle.r * circle.r))
+    if (distanceSquared >= (circle.r * circle.r))
     {
         return CollisionSide::None;
     }
 
-    // Calculate distances to each side
-    float distToLeft = std::abs(circle.x - rect.x);
-    float distToRight = std::abs(circle.x - (rect.x + rect.w));
-    float distToBottom = std::abs(circle.y - rect.y);
-    float distToTop = std::abs(circle.y - (rect.y + rect.h));
+    // Determine if nearest point is on an edge or corner
+    float leftEdge = rect.x;
+    float rightEdge = rect.x + rect.w;
+    float bottomEdge = rect.y;
+    float topEdge = rect.y + rect.h;
 
-    // Find the side with minimum distance
-    float minDist = distToLeft;
-    CollisionSide side = CollisionSide::Left;
+    const bool isOnLeftEdge = (nearestX == leftEdge);
+    const bool isOnRightEdge = (nearestX == rightEdge);
+    const bool isOnBottomEdge = (nearestY == bottomEdge);
+    const bool isOnTopEdge = (nearestY == topEdge);
 
-    if (distToRight < minDist)
+    const bool isCornerCollision = (isOnLeftEdge || isOnRightEdge) && (isOnBottomEdge || isOnTopEdge);
+
+    if (isCornerCollision)
     {
-        minDist = distToRight;
-        side = CollisionSide::Right;
-    }
-    if (distToTop < minDist)
-    {
-        minDist = distToTop;
-        side = CollisionSide::Top;
-    }
-    if (distToBottom < minDist)
-    {
-        side = CollisionSide::Bottom;
+        float penetrationLeft = (circle.x + circle.r) - leftEdge;
+        float penetrationRight = rightEdge - (circle.x - circle.r);
+        float penetrationBottom = (circle.y + circle.r) - bottomEdge;
+        float penetrationTop = topEdge - (circle.y - circle.r);
+
+        float minPenetration = penetrationLeft;
+        CollisionSide side = CollisionSide::Left;
+
+        if (isOnRightEdge && penetrationRight < minPenetration)
+        {
+            minPenetration = penetrationRight;
+            side = CollisionSide::Right;
+        }
+        if (isOnBottomEdge && penetrationBottom < minPenetration)
+        {
+            minPenetration = penetrationBottom;
+            side = CollisionSide::Bottom;
+        }
+        if (isOnTopEdge && penetrationTop < minPenetration)
+        {
+            minPenetration = penetrationTop;
+            side = CollisionSide::Top;
+        }
+
+        return side;
     }
 
-    return side;
+    if (isOnLeftEdge)
+        return CollisionSide::Left;
+    if (isOnRightEdge)
+        return CollisionSide::Right;
+    if (isOnBottomEdge)
+        return CollisionSide::Bottom;
+    if (isOnTopEdge)
+        return CollisionSide::Top;
+
+    return CollisionSide::None;
 }
 
 bool Intersects(const Circle& circle, const Rect& rect)

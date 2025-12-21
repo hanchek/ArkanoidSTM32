@@ -1,3 +1,5 @@
+#define PI 3.14159265358979323846
+
 struct Rect
 {
     float x;
@@ -36,3 +38,8 @@ CollisionSide GetCollisionSide(const Circle& circle, const Rect& rect);
 bool IntersectsVerticalWall(const Circle& circle, float x);
 bool IntersectsHorizontalWall(const Circle& circle, float y);
 
+template<typename T>
+inline T Lerp(T a, T b, float t)
+{
+    return a + (b - a) * t;
+}

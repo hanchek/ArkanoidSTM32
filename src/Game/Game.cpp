@@ -9,6 +9,9 @@ constexpr float PRESS_TIMEOUT = 0.03f;
 constexpr float GAME_OVER_TIMEOUT = 1.f;
 constexpr uint8_t BRICK_WIDTH = 15;
 constexpr uint8_t BRICK_HEIGHT = 7;
+constexpr float BALL_SPEED = 90.f;
+constexpr float BALL_MIN_ANGLE = 30.f * PI / 180.f;
+constexpr float BALL_MAX_ANGLE = 150.f * PI / 180.f;
 
 
 void Game::Init()
@@ -16,19 +19,22 @@ void Game::Init()
     constexpr int columns = DISPLAY_WIDTH / (BRICK_WIDTH + 1);
     constexpr int rows = 3;
 
+    _bricks.clear();
     for (int i = 0; i < columns; ++i)
     {
-        for (int j = 0; j <= rows; ++j)
+        for (int j = 0; j < rows; ++j)
         {
-            const uint8_t x = i * (BRICK_WIDTH + 1);
-            const uint8_t y = DISPLAY_HEIGHT - j * (BRICK_HEIGHT + 1);
-            _bricks.push_back(Brick(x, y, BRICK_WIDTH, BRICK_HEIGHT));
+            const uint8_t w = BRICK_WIDTH + 1;
+            const uint8_t h = BRICK_HEIGHT + 1;
+            const uint8_t x = i * w;
+            const uint8_t y = DISPLAY_HEIGHT - (j + 1) * h;
+            _bricks.push_back(Brick(x, y, BRICK_WIDTH, BRICK_HEIGHT, 3 - j));
         }
     }
 
     _ball = Ball();
-    _ball.SetVelocityX(60.f);
-    _ball.SetVelocityY(60.f);
+    _ball.SetVelocityX(0.f);
+    _ball.SetVelocityY(90.f);
     _platform = Platform();
 }
 
@@ -106,10 +112,18 @@ void Game::OnRightPressed()
 void Game::UpdateCollisions()
 {
     const Circle ballCircle = _ball.GetCircle();
+    const Rect platformRect = _platform.GetRect();
 
-    if (Intersects(ballCircle, _platform.GetRect()))
+    if (Intersects(ballCircle, platformRect))
     {
-        _ball.SetVelocityY(std::fabs(_ball.GetVelocityY()));
+        const float t = 1.f - std::clamp((ballCircle.x - platformRect.x) / platformRect.w, 0.f, 1.f);
+        const float angle = Lerp(BALL_MIN_ANGLE, BALL_MAX_ANGLE, t);
+        const float velocityX = BALL_SPEED * std::cos(angle);
+        const float velocityY = BALL_SPEED * std::sin(angle);
+        _ball.SetVelocityX(velocityX);
+        _ball.SetVelocityY(velocityY);
+        _ball.SetYF(platformRect.y + platformRect.h + ballCircle.r);
+
         _platform.SetDirty(true);
     }
     else
@@ -134,39 +148,52 @@ void Game::UpdateCollisions()
         }
     }
 
-    bool brickCollided = false;
+    bool brickHit = false;
 
-    for (auto& brick : _bricks)
+    for (size_t i = 0; i < _bricks.size(); ++i)
     {
+        Brick& brick = _bricks[i];
         const Rect brickRect = brick.GetRect();
         const CollisionSide side = GetCollisionSide(ballCircle, brickRect);
-        switch (side)
-        {
-            case CollisionSide::Top:
-                _ball.SetVelocityY(std::fabs(_ball.GetVelocityY()));
-                break;
-            case CollisionSide::Bottom:
-                _ball.SetVelocityY(-std::fabs(_ball.GetVelocityY()));
-                break;
-            case CollisionSide::Left:
-                _ball.SetVelocityX(-std::fabs(_ball.GetVelocityX()));
-                break;
-            case CollisionSide::Right:
-                _ball.SetVelocityX(std::fabs(_ball.GetVelocityX()));
-                break;
-            default:
-                break;
-        }
 
         if (side != CollisionSide::None)
         {
             brick.SetDirty(true);
-            if (!brickCollided)
+            if (!brickHit)
             {
-                brickCollided = true;
-                _rectsToClear.push_back(brickRect);
-                _bricks.erase(std::remove(_bricks.begin(), _bricks.end(), brick), _bricks.end());
+                brickHit = true;
+                brick.OnHit();
+                _rectsToClear.push_back(brick.GetRectToClear());
+
+                switch (side)
+                {
+                    case CollisionSide::Top:
+                        _ball.SetVelocityY(std::fabs(_ball.GetVelocityY()));
+                        _ball.SetYF(brickRect.y + brickRect.h + ballCircle.r);
+                        break;
+                    case CollisionSide::Bottom:
+                        _ball.SetVelocityY(-std::fabs(_ball.GetVelocityY()));
+                        _ball.SetYF(brickRect.y - ballCircle.r);
+                        break;
+                    case CollisionSide::Left:
+                        _ball.SetVelocityX(-std::fabs(_ball.GetVelocityX()));
+                        _ball.SetXF(brickRect.x - ballCircle.r);
+                        break;
+                    case CollisionSide::Right:
+                        _ball.SetVelocityX(std::fabs(_ball.GetVelocityX()));
+                        _ball.SetXF(brickRect.x + brickRect.w + ballCircle.r);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
+    }
+
+    if (brickHit)
+    {
+        _bricks.erase(std::remove_if(_bricks.begin(), _bricks.end(), [](const Brick& brick) {
+            return brick.GetLevel() == 0;
+        }), _bricks.end());
     }
 }

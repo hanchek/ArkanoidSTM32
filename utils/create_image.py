@@ -11,9 +11,9 @@ from PIL import Image
 # ========== CONFIGURATION ==========
 # Change these variables to configure the conversion
 
-INPUT_IMAGE = "gameover.bmp"             # Path to the input image file
-OUTPUT_FILE = "GameOver.h"            # Output file path (set to None to print to stdout)
-ARRAY_NAME = "GameOver"            # Name of the C++ array
+INPUT_IMAGE = "brick03.bmp"             # Path to the input image file
+OUTPUT_FILE = "Brick03.h"            # Output file path (set to None to print to stdout)
+ARRAY_NAME = "Brick03"            # Name of the C++ array
 RESIZE_TO = None                    # Resize image to (width, height) or None to use original size
                                     # Example: RESIZE_TO = (128, 64) for full SSD1306 display
 THRESHOLD = 128                     # Brightness threshold 0-255 (pixels >= threshold will be lit)
