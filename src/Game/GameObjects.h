@@ -5,7 +5,7 @@
 class Ball : public DrawCircleObject
 {
 public:
-    Ball(uint8_t x, uint8_t y);
+    Ball();
 
     void SetXF(float xf) { _xf = xf; }
     void SetYF(float yf) { _yf = yf; }

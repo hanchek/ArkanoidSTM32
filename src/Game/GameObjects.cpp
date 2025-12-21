@@ -10,12 +10,16 @@ constexpr uint8_t BALL_RADIUS = 2;
 constexpr bool BALL_FILL = true;
 constexpr uint8_t BRICK_WIDTH = 7;
 constexpr uint8_t BRICK_HEIGHT = 3;
+constexpr uint8_t PLATFORM_WIDTH = 20;
+constexpr uint8_t PLATFORM_HEIGHT = 3;
+constexpr uint8_t BALL_START_X = DISPLAY_WIDTH / 2 - 1;
+constexpr uint8_t BALL_START_Y = PLATFORM_HEIGHT + 5;
 
-Ball::Ball(uint8_t x, uint8_t y)
-    : DrawCircleObject(x, y, BALL_RADIUS, BALL_FILL)
+Ball::Ball()
+    : DrawCircleObject(BALL_START_X, BALL_START_Y, BALL_RADIUS, BALL_FILL)
 {
-    _xf = static_cast<float>(x);
-    _yf = static_cast<float>(y);
+    _xf = static_cast<float>(_x);
+    _yf = static_cast<float>(_y);
 }
 
 void Ball::Update(float dt)
@@ -27,7 +31,7 @@ void Ball::Update(float dt)
     _y = std::round(_yf);
 }
 
-Platform::Platform() : DrawRectObject(FIELD_WIDTH / 2, 0, 20, 3)
+Platform::Platform() : DrawRectObject((FIELD_WIDTH - PLATFORM_WIDTH) / 2, 0, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 {
     _xf = static_cast<float>(_x);
 }
