@@ -22,10 +22,12 @@ void Game::Init()
     _bricks.clear();
     for (int i = 0; i < columns; ++i)
     {
-        for (int j = 0; j <= rows; ++j)
+        for (int j = 0; j < rows; ++j)
         {
-            const uint8_t x = i * (BRICK_WIDTH + 1);
-            const uint8_t y = DISPLAY_HEIGHT - j * (BRICK_HEIGHT + 1);
+            const uint8_t w = BRICK_WIDTH + 1;
+            const uint8_t h = BRICK_HEIGHT + 1;
+            const uint8_t x = i * w;
+            const uint8_t y = DISPLAY_HEIGHT - (j + 1) * h;
             _bricks.push_back(Brick(x, y, BRICK_WIDTH, BRICK_HEIGHT));
         }
     }
