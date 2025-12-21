@@ -1,6 +1,7 @@
 #include "GameObjects.h"
 
 #include <algorithm>
+#include <cmath>
 
 constexpr uint8_t FIELD_WIDTH = 128;
 constexpr uint8_t FIELD_HEIGHT = 64;
@@ -22,8 +23,8 @@ void Ball::Update(float dt)
     _xf += _dx * dt;
     _yf += _dy * dt;
 
-    _x = static_cast<uint8_t>(_xf);
-    _y = static_cast<uint8_t>(_yf);
+    _x = std::round(_xf);
+    _y = std::round(_yf);
 }
 
 Platform::Platform() : DrawRectObject(FIELD_WIDTH / 2, 0, 20, 3)
@@ -45,7 +46,7 @@ void Platform::Update(float dt)
     }
 
     _xf = std::clamp(_xf, 0.f, static_cast<float>(FIELD_WIDTH - _width));
-    _x = static_cast<uint8_t>(_xf);
+    _x = std::round(_xf);
 }
 
 Brick::Brick(uint8_t x, uint8_t y, uint8_t w, uint8_t h)

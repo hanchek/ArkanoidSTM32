@@ -34,7 +34,7 @@ class DrawRectObject : public DrawObject
         uint8_t GetWidth() const { return _width; }
         uint8_t GetHeight() const { return _height; }
 
-        Rect GetRect() const { return {_x, _y, _width, _height}; }
+        virtual Rect GetRect() const { return {_x, _y, _width, _height}; }
 
     protected:
         uint8_t _width;

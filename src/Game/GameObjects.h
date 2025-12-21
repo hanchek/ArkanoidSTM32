@@ -17,7 +17,7 @@ public:
     float GetVelocityX() const { return _dx; }
     float GetVelocityY() const { return _dy; }
 
-    Circle GetCircle() const override { return {_xf, _yf, _radius}; }
+    Circle GetCircle() const override { return {_xf, _yf, _radius + 1.f}; }
 
     void Update(float dt);
 private:
@@ -47,7 +47,9 @@ class Brick : public DrawRectObject
 {
 public:
     Brick(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
-    
+
+    Rect GetRect() const override { return {_x - 0.5f, _y - 0.5f, _width + 1.f, _height + 1.f}; }
+
     bool operator==(const Brick& other) const
     {
         return _x == other._x && _y == other._y;

@@ -140,23 +140,6 @@ void Game::UpdateCollisions()
     {
         const Rect brickRect = brick.GetRect();
         const CollisionSide side = GetCollisionSide(ballCircle, brickRect);
-        switch (side)
-        {
-            case CollisionSide::Top:
-                _ball.SetVelocityY(std::fabs(_ball.GetVelocityY()));
-                break;
-            case CollisionSide::Bottom:
-                _ball.SetVelocityY(-std::fabs(_ball.GetVelocityY()));
-                break;
-            case CollisionSide::Left:
-                _ball.SetVelocityX(-std::fabs(_ball.GetVelocityX()));
-                break;
-            case CollisionSide::Right:
-                _ball.SetVelocityX(std::fabs(_ball.GetVelocityX()));
-                break;
-            default:
-                break;
-        }
 
         if (side != CollisionSide::None)
         {
@@ -166,6 +149,24 @@ void Game::UpdateCollisions()
                 brickCollided = true;
                 _rectsToClear.push_back(brickRect);
                 _bricks.erase(std::remove(_bricks.begin(), _bricks.end(), brick), _bricks.end());
+
+                switch (side)
+                {
+                    case CollisionSide::Top:
+                        _ball.SetVelocityY(std::fabs(_ball.GetVelocityY()));
+                        break;
+                    case CollisionSide::Bottom:
+                        _ball.SetVelocityY(-std::fabs(_ball.GetVelocityY()));
+                        break;
+                    case CollisionSide::Left:
+                        _ball.SetVelocityX(-std::fabs(_ball.GetVelocityX()));
+                        break;
+                    case CollisionSide::Right:
+                        _ball.SetVelocityX(std::fabs(_ball.GetVelocityX()));
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
