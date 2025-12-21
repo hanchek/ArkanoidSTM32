@@ -19,6 +19,7 @@ void Game::Init()
     constexpr int columns = DISPLAY_WIDTH / (BRICK_WIDTH + 1);
     constexpr int rows = 3;
 
+    _bricks.clear();
     for (int i = 0; i < columns; ++i)
     {
         for (int j = 0; j <= rows; ++j)
