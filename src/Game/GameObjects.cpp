@@ -11,11 +11,11 @@ constexpr bool BALL_FILL = true;
 constexpr uint8_t BRICK_WIDTH = 7;
 constexpr uint8_t BRICK_HEIGHT = 3;
 
-Ball::Ball()
-    : DrawCircleObject(FIELD_WIDTH / 2, FIELD_HEIGHT / 2, BALL_RADIUS, BALL_FILL)
+Ball::Ball(uint8_t x, uint8_t y)
+    : DrawCircleObject(x, y, BALL_RADIUS, BALL_FILL)
 {
-    _xf = static_cast<float>(_x);
-    _yf = static_cast<float>(_y);
+    _xf = static_cast<float>(x);
+    _yf = static_cast<float>(y);
 }
 
 void Ball::Update(float dt)
