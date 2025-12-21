@@ -145,21 +145,21 @@ void Game::UpdateCollisions()
         }
     }
 
-    bool brickCollided = false;
+    int brickIndexToRemove = -1;
 
-    for (auto& brick : _bricks)
+    for (size_t i = 0; i < _bricks.size(); ++i)
     {
+        Brick& brick = _bricks[i];
         const Rect brickRect = brick.GetRect();
         const CollisionSide side = GetCollisionSide(ballCircle, brickRect);
 
         if (side != CollisionSide::None)
         {
             brick.SetDirty(true);
-            if (!brickCollided)
+            if (brickIndexToRemove == -1)
             {
-                brickCollided = true;
+                brickIndexToRemove = static_cast<int>(i);
                 _rectsToClear.push_back(brickRect);
-                _bricks.erase(std::remove(_bricks.begin(), _bricks.end(), brick), _bricks.end());
 
                 switch (side)
                 {
@@ -184,5 +184,10 @@ void Game::UpdateCollisions()
                 }
             }
         }
+    }
+
+    if (brickIndexToRemove != -1)
+    {
+        _bricks.erase(_bricks.begin() + brickIndexToRemove);
     }
 }
