@@ -46,12 +46,21 @@ private:
 class Brick : public DrawRectObject
 {
 public:
-    Brick(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+    Brick(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t level);
 
     Rect GetRect() const override { return {_x - 0.5f, _y - 0.5f, _width + 1.f, _height + 1.f}; }
+    Rect GetRectToClear() const { return {_x, _y, _width + 1.f, _height + 1.f}; }
+    uint8_t GetLevel() const { return _level; }
+
+    void OnDraw(Display& display, uint8_t x, uint8_t y, bool color) const override;
+
+    void OnHit();
 
     bool operator==(const Brick& other) const
     {
         return _x == other._x && _y == other._y;
     }
+
+private:
+    uint8_t _level = 1;
 };

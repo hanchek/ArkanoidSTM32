@@ -28,7 +28,7 @@ void Game::Init()
             const uint8_t h = BRICK_HEIGHT + 1;
             const uint8_t x = i * w;
             const uint8_t y = DISPLAY_HEIGHT - (j + 1) * h;
-            _bricks.push_back(Brick(x, y, BRICK_WIDTH, BRICK_HEIGHT));
+            _bricks.push_back(Brick(x, y, BRICK_WIDTH, BRICK_HEIGHT, 3 - j));
         }
     }
 
@@ -148,7 +148,7 @@ void Game::UpdateCollisions()
         }
     }
 
-    int brickIndexToRemove = -1;
+    bool brickHit = false;
 
     for (size_t i = 0; i < _bricks.size(); ++i)
     {
@@ -159,10 +159,11 @@ void Game::UpdateCollisions()
         if (side != CollisionSide::None)
         {
             brick.SetDirty(true);
-            if (brickIndexToRemove == -1)
+            if (!brickHit)
             {
-                brickIndexToRemove = static_cast<int>(i);
-                _rectsToClear.push_back(brickRect);
+                brickHit = true;
+                brick.OnHit();
+                _rectsToClear.push_back(brick.GetRectToClear());
 
                 switch (side)
                 {
@@ -189,8 +190,10 @@ void Game::UpdateCollisions()
         }
     }
 
-    if (brickIndexToRemove != -1)
+    if (brickHit)
     {
-        _bricks.erase(_bricks.begin() + brickIndexToRemove);
+        _bricks.erase(std::remove_if(_bricks.begin(), _bricks.end(), [](const Brick& brick) {
+            return brick.GetLevel() == 0;
+        }), _bricks.end());
     }
 }

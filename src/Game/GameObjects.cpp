@@ -1,7 +1,10 @@
 #include "GameObjects.h"
 
+#include "Bricks.h"
+
 #include <algorithm>
 #include <cmath>
+
 
 constexpr uint8_t FIELD_WIDTH = 128;
 constexpr uint8_t FIELD_HEIGHT = 64;
@@ -53,7 +56,46 @@ void Platform::Update(float dt)
     _x = std::round(_xf);
 }
 
-Brick::Brick(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+Brick::Brick(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t level)
     : DrawRectObject(x, y, w, h)
 {
+    _level = level;
+}
+
+void Brick::OnDraw(Display& display, uint8_t x, uint8_t y, bool color) const
+{
+    const uint8_t* image = nullptr;
+    size_t imageSize = 0;
+
+    switch (_level)
+    {
+        default:
+        case 1:
+            image = Brick01.data();
+            imageSize = Brick01.size();
+            break;
+        case 2:
+            image = Brick02.data();
+            imageSize = Brick02.size();
+            break;
+        case 3:
+            image = Brick03.data();
+            imageSize = Brick03.size();
+            break;
+    }
+
+    if (color)
+    {
+        display.DrawImage(x, y / 8u, image, imageSize, 1);
+    }
+    else
+    {
+        display.DrawRect(x, y, _width + 1, _height + 1, false);
+    }
+}
+
+void Brick::OnHit()
+{
+    _level--;
+    SetDirty(true);
 }
