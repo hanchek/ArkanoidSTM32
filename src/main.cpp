@@ -28,11 +28,6 @@ int main()
     Game game;
     game.Init();
 
-    constexpr int framesCount = 64;
-    uint32_t frames[framesCount];
-    std::fill(std::begin(frames), std::end(frames), 0);
-    int i = 0;
-
     uint32_t lastTick  = DWT->CYCCNT;
 
     while (true)
@@ -56,16 +51,8 @@ int main()
         {
             game.OnRightPressed();
         }
-        uint32_t start = DWT->CYCCNT;
-        game.Draw(display);
-        uint32_t cycleTime = DWT->CYCCNT - start;
 
-        frames[i] = cycleTime / (SystemCoreClock / 1e6);
-        ++i;
-        if (i >= framesCount)
-        {
-            i = 0;
-        }
+        game.Draw(display);
     }
 
     return 0;
